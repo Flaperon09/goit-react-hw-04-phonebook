@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { GlobalStyle } from "./GlobalStyle";
+import { GlobalStyle } from "../GlobalStyle";
 import shortid from 'shortid';
 import { Section } from './Section';
 import Form from './Form';
