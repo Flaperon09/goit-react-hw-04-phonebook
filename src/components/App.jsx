@@ -12,6 +12,23 @@ class App extends Component {
     filter: '',
   };
 
+  // === Чтение данных из LocalStorage
+  componentDidMount() {
+	  const contacts = localStorage.getItem('contacts'); // Получение данных из LocalStorage
+	  const parsedContacts = JSON.parse(contacts); // Создание массива из строки
+    // Запись данных в массив приложения, если они существуют в LocalStorage
+	  if (parsedContacts) {
+		  this.setState({ contacts: parsedContacts }); 
+	  }
+  };
+
+  // === Запись данных в LocalStorage
+  componentDidUpdate(prevProps, prevState) {
+	  if (prevProps.contacts !== prevState.contacts) {
+		  localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+	  }
+  }
+
   // === Добавление нового контакта
   handleSubmitData = data => {
     // Добавление id в объект контакта
