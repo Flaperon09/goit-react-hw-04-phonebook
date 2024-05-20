@@ -1,38 +1,51 @@
-import React, { Component } from 'react';
-// import shortid from 'shortid';
+import {useState} from 'react';
+
 import { FormData, FormLabel, FormLabelName, FormInputName } from './Form.styled';
 
-class Form extends Component {
-    state = {
-        name: '',
-        number: '',
+export default function Form({ onSubmit }) {
+    
+    // === ХУКи состояния
+    const [name, setName] = useState('');
+    const [number, setNumber] = useState('');
+
+    // === Объект состояния
+    const state = {
+        name,
+        number,
     };
 
     // === Обновление state при вводе в <input>
-    handleChange = event => {
-	  const { name, value } = event.currentTarget;
-        this.setState({ [name]: value, });
-    };
-
-    // === Добавление нового контакта
-	handleSubmit = event => {
-        event.preventDefault();
-        // Возврат нового контакта в App
-        this.props.onSubmit(this.state);
-        // Очистка формы после отправки данных
-        this.reset();
-  };
-
-    // === Очистка формы
-    reset = () => {
-        this.setState({ name: '', number: '', });
+    const handleChange = event => {
+        const { name, value } = event.currentTarget;
+        switch (name) {
+            case 'name':
+                setName(value);
+                break;
+            case 'number':
+                setNumber(value);
+                break;
+            default: return;
+        };
     };
     
-    render() {
-        const { name, number } = this.state;
+    // === Добавление нового контакта
+    const handleSubmit = event => {
+        event.preventDefault();
+        // Возврат нового контакта в App
+        onSubmit(state);
+        // Очистка формы после отправки данных
+        reset();
+    }
+
+    // === Очистка формы
+    const reset = () => {
+        setName('');
+        setNumber('');
+    };
+
         return (
             <div>
-                <FormData onSubmit={this.handleSubmit}>
+                <FormData onSubmit={handleSubmit}>
                     <FormLabel>
                         <FormLabelName>Name</FormLabelName>
                         <FormInputName
@@ -41,7 +54,7 @@ class Form extends Component {
                             pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
                             title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
                             required
-                            value={name} onChange={this.handleChange}
+                            value={name} onChange={handleChange}
                         />
                         <FormLabelName>Number</FormLabelName>
                         <FormInputName
@@ -50,14 +63,11 @@ class Form extends Component {
                             pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
                             title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
                             required
-                            value={number} onChange={this.handleChange}
+                            value={number} onChange={handleChange}
                             />
                     </FormLabel>
                     <button type="submit">Add contact</button>
                 </FormData>
             </div>
         )
-    }
 };
-
-export default Form;

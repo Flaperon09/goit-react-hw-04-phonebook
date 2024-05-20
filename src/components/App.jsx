@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { GlobalStyle } from "../GlobalStyle";
 import shortid from 'shortid';
 import { Section } from './Section';
@@ -6,64 +6,47 @@ import Form from './Form';
 import { ContactsList } from './ContactsList';
 import { Filter } from './Filter';
 
-class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
+export default function App() {
+  
+  // === ХУКи состояния
+  const [contacts, setContacts] = useState(() => {return JSON.parse(window.localStorage.getItem('contacts')) ?? []});
+  const [filter, setFilter] = useState('');
 
-  // === Чтение данных из LocalStorage
-  componentDidMount() {
-	  const contacts = localStorage.getItem('contacts'); // Получение данных из LocalStorage
-	  const parsedContacts = JSON.parse(contacts); // Создание массива из строки
-    // Запись данных в массив приложения, если они существуют в LocalStorage
-	  if (parsedContacts) {
-		  this.setState({ contacts: parsedContacts }); 
-	  }
-  };
-
-  // === Запись данных в LocalStorage
-  componentDidUpdate(prevProps, prevState) {
-	  if (prevProps.contacts !== prevState.contacts) {
-		  localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-	  }
-  }
+  // === ХУК Запись данных в LocalStorage
+  useEffect(() => {
+    window.localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
   // === Добавление нового контакта
-  handleSubmitData = data => {
+  const handleSubmitData = data => {
     // Добавление id в объект контакта
     data.id = shortid.generate();
-    
     // Проверка наличия контакта в state
-    if (this.state.contacts.find(option => option.name.toLowerCase() === data.name.toLowerCase())) {
+    if (contacts.find(option => option.name.toLowerCase() === data.name.toLowerCase())) {
       return alert(`${data.name} is already in contacts.`);
     } else {
-        this.setState(({ contacts }) => ({
-          contacts: [data, ...contacts],
-        }));
+        setContacts([data, ...contacts]);
     }
   };
-    
-  // === Обновление filter в state
-  changeFilter = event => {
-    this.setState({ filter: event.currentTarget.value });
+
+  // === Обновление filter в состоянии
+  const changeFilter = event => {
+    setFilter(event.currentTarget.value);
   };
 
   // === Фильтрация контактов
-  getVisibleContacts = () => {
-	  const { filter, contacts } = this.state;
+  const getVisibleContacts = () => {
     const normalizedFilter = filter.toLowerCase();
 	  return contacts.filter(contact => contact.name.toLowerCase().includes(normalizedFilter),);
   }
 
   // === Удаление контакта
-  deleteContact = contactId => {
-	  this.setState(prevState => ({
-		  contacts: prevState.contacts.filter(contact => contact.id !== contactId),
-	  }));
+  const deleteContact = contactId => {
+	  setContacts( 
+		  contacts.filter(contact => contact.id !== contactId),
+	  );
   };
 
-  render() {
     return (
       <div>
 
@@ -71,22 +54,18 @@ class App extends Component {
 
         <Section title="Phonebook">
           <Form
-            onSubmit={this.handleSubmitData} />
+            onSubmit={handleSubmitData} />
         </Section>
 
         <Section title="Contacts">
           <Filter
-            value={this.state.filter}
-            onChange={this.changeFilter} />
+            value={filter}
+            onChange={changeFilter} />
           <ContactsList
-            contacts={this.getVisibleContacts()}
-            onDeleteContact={this.deleteContact} />
+            contacts={getVisibleContacts()}
+            onDeleteContact={deleteContact} />
         </Section>
 
     </div>
     )
-  }
-
 };
-
-export default App;
